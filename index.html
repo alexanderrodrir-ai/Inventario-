@@ -42,6 +42,7 @@
       border-radius: 10px;
       display: none;
     }
+  #pantalonSection { display:none; margin-top:12px; }
   </style>
 </head>
 <body>
@@ -72,21 +73,52 @@
     let inventario = [];
 
     function agregarProducto() {
-      const producto = document.getElementById("producto").value;
+      const producto = document.getElementById("producto").value.trim().toLowerCase();
       const cantidad = parseInt(document.getElementById("cantidad").value);
       const talla = document.getElementById("talla").value;
+      const pantalonActivo = document.getElementById("pantalonSection") && document.getElementById("pantalonSection").style.display === 'block';
+      const tallaPantalon = pantalonActivo ? document.getElementById("tallaPantalon").value : null;
 
       if (!producto || !cantidad) {
         alert("Por favor completa todos los campos.");
         return;
       }
 
-      inventario.push({ producto, cantidad, talla });
+      inventario.push({ producto, cantidad, talla, tallaPantalon });
       alert("Producto agregado correctamente ✔️");
 
       document.getElementById("producto").value = "";
       document.getElementById("cantidad").value = "";
       document.getElementById("talla").value = "S";
+      if (document.getElementById("tallaPantalon")) document.getElementById("tallaPantalon").value = "28";
+    }
+
+    function generarInforme() {
+      if (inventario.length === 0) {
+        alert("No hay productos en el inventario.");
+        return;
+      }
+
+      let totales = {};
+
+      inventario.forEach(item => {
+        const key = item.producto.toLowerCase();
+        if (!totales[key]) totales[key] = [];
+        totales[key].push(item);
+      });
+
+      let html = "<h2>📊 Informe de Inventario</h2>";
+
+      for (let prod in totales) {
+        html += `<h3 style='margin-top:15px;'>${prod.toUpperCase()}</h3>`;
+        totales[prod].forEach(item => {
+          html += `<p>🟦 Cantidad: <strong>${item.cantidad}</strong> | Talla: <strong>${item.talla}</strong> ${item.tallaPantalon ? `| Talla pantalón: <strong>${item.tallaPantalon}</strong>` : ''}</p>`;
+        });
+      }
+
+      const informeDiv = document.getElementById("informe");
+      informeDiv.innerHTML = html;
+      informeDiv.style.display = "block";
     }
 
     function generarInforme() {
